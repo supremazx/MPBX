@@ -8,6 +8,7 @@
 IP_=$(ip route get 8.8.8.8 | awk -F"src " 'NR==1{split($2,a," ");print a[1]}')
 read -p " Your External IP[${IP_}]" IP
 IP=${IP:-$IP_}
+timedatectl set-timezone "Europe/Istanbul"
 
 #Domain:
 [ -f ./.domain ] && . .domain
@@ -22,15 +23,17 @@ perl -pi -e "s/=enforcing/=disabled/g"  /etc/selinux/config
 
 
 yum groupinstall core base 'Development Tools' -y
+yum install -y epel-release
+dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
 
-if [ $(rpm -qa|grep remi-release|wc -l) -eq 0 ];  then
- read -p  " ###   Install epel-release and remi-release [ next ]" next
- rpm -Uvh http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
- if [ $(cat /etc/redhat-release|grep "8.5.2"|wc -l) -eq 1 ];then
-    rpm -Uvh https://rpms.remirepo.net/enterprise/8/remi/x86_64/remi-release-8.5-2.el8.remi.noarch.rpm
- else   
-    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-8.rpm
-fi
+#if [ $(rpm -qa|grep remi-release|wc -l) -eq 0 ];  then
+# read -p  " ###   Install epel-release and remi-release [ next ]" next
+# rpm -Uvh http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+# if [ $(cat /etc/redhat-release|grep "8.5.2"|wc -l) -eq 1 ];then
+#    rpm -Uvh https://rpms.remirepo.net/enterprise/8/remi/x86_64/remi-release-8.5-2.el8.remi.noarch.rpm
+# else   
+#    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-8.rpm
+#fi
 
 
 ### PowerTool repo,  install DNF plugins package:
@@ -40,8 +43,7 @@ dnf config-manager --set-enabled powertools
 
 ## xmlstarlet?
 yum install -y gcc gcc-c++ unixODBC-devel libiodbc-devel yum-utils bison mysql-devel mysql-server tftp-server httpd make ncurses-devel libtermcap-devel sendmail sendmail-cf caching-nameserver sox newt-devel libxml2-devel libtiff-devel audiofile-devel gtk2-devel subversion kernel-devel git subversion kernel-devel crontabs cronie cronie-anacron wget vim libtool sqlite-devel unixODBC libuuid-devel binutils-devel opus opus-devel libedit-devel openssl-devel libevent libevent-devel libedit-devel libxml2-devel sqlite-devel curl-devel unixODBC-devel certbot certbot-apache mod_ssl iptables iptables-services tcpdump ngrep fail2ban net-tools libsrtp-devel
-
-
+git config --global http.sslVerify false
 
 ## Install Statically linked ffmpeg:
 if [ ! -f /usr/bin/ffmpeg ]; then
